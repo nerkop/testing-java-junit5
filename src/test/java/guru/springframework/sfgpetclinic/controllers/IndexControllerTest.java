@@ -1,9 +1,16 @@
 package guru.springframework.sfgpetclinic.controllers;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.*;
 
+import java.time.Duration;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 class IndexControllerTest {
 
@@ -14,14 +21,57 @@ class IndexControllerTest {
         indexController = new IndexController();
     }
 
+    @DisplayName("Test for Index")
     @Test
     void index() {
         assertEquals("index", indexController.index());
+        assertThat(indexController.index()).isEqualTo("index");
     }
 
     @Test
     void oupsHandler() {
-        assertTrue("notimplemented".equals(indexController.oupsHandler()), ()-> "This is some expensive" +
-                " Message to build" + " for my tests");
+        assertThrows(ValueNotFoundException.class, () -> {
+            indexController.oupsHandler();
+        });
+    }
+
+    @Disabled(value = "Demo of timeout")
+    @Test
+    void testTimeout() {
+        assertTimeout(Duration.ofMillis(100),
+                () -> Thread.sleep(5000));
+        System.out.println("i got here");
+    }
+
+    @Disabled(value = "Demo of timeout")
+    @Test
+    void testTimeoutPrempt() {
+        assertTimeoutPreemptively(Duration.ofMillis(100), ()-> Thread.sleep(5000));
+        System.out.println("i got here too. Did I?");
+    }
+
+    @Test
+    void testAssumptionTrue() {
+        assumeTrue("GURU".equalsIgnoreCase(System.getenv("GURU_RUNTIME")));
+    }
+
+    @Test
+    void testAssumptionTrueAssumtionIsTrue() {
+        assumeTrue("GURU".equalsIgnoreCase("GURU"));
+    }
+
+    @Test
+    @EnabledOnOs(OS.WINDOWS)
+    void testMeOnWindows() {
+    }
+
+    @Test
+    @EnabledOnJre(JRE.JAVA_8)
+    void testMeForJava8() {
+    }
+
+    @Test
+    @EnabledIfEnvironmentVariable(named = "USER", matches = "ABC")
+    void testEnv() {
     }
 }
